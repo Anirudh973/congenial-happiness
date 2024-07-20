@@ -3,26 +3,46 @@
 <head>
     <title>Spotify Callback</title>
     <script>
+        async function fetchAccessToken(code) {
+            const clientId = '65803a451ff043f785490a504154ce8b';
+            const clientSecret = '55d5e229d8f440f5b5eeec6e4aa81fdb';
+            const redirectUri = 'https://anirudh973.github.io/congenial-happiness/';
+
+            const tokenUrl = 'https://accounts.spotify.com/api/token';
+            const body = new URLSearchParams({
+                grant_type: 'authorization_code',
+                code: code,
+                redirect_uri: redirectUri,
+                client_id: clientId,
+                client_secret: clientSecret,
+            });
+
+            const response = await fetch(tokenUrl, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                },
+                body: body.toString()
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                console.log('Access Token:', data.access_token);
+                console.log('Refresh Token:', data.refresh_token);
+                // Store tokens in localStorage or use them directly
+            } else {
+                console.error('Failed to fetch access token:', response.statusText);
+            }
+        }
+
         window.onload = function() {
             const urlParams = new URLSearchParams(window.location.search);
             const code = urlParams.get('code');
             console.log('Authorization Code:', code);
 
-            // Optionally, send the code to your backend server for further processing
-            fetch('https://your-backend-server.com/handle-auth-code', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ code: code })
-            })
-            .then(response => response.json())
-            .then(data => {
-                console.log('Success:', data);
-            })
-            .catch((error) => {
-                console.error('Error:', error);
-            });
+            if (code) {
+                fetchAccessToken(code);
+            }
         }
     </script>
 </head>
